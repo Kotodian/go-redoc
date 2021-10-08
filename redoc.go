@@ -16,6 +16,7 @@ var ErrSpecNotFound = errors.New("spec not found")
 
 // Redoc configuration
 type Redoc struct {
+	Spec        string
 	DocsPath    string
 	SpecPath    string
 	SpecFile    string
@@ -31,6 +32,9 @@ var HTML string
 //go:embed assets/redoc.standalone.js
 var JavaScript string
 
+////go:embed assets/favicon.ico
+//var icon string
+
 // Body returns the final html with the js in the body
 func (r Redoc) Body() ([]byte, error) {
 	buf := bytes.NewBuffer(nil)
@@ -44,6 +48,7 @@ func (r Redoc) Body() ([]byte, error) {
 		"title":       r.Title,
 		"url":         r.SpecPath,
 		"description": r.Description,
+		//"icon":        "favicon.ico",
 	}); err != nil {
 		return nil, err
 	}
@@ -57,10 +62,18 @@ func (r Redoc) Handler() http.HandlerFunc {
 	if err != nil {
 		panic(err)
 	}
-
-	specFile := r.SpecFile
-	if specFile == "" {
-		panic(ErrSpecNotFound)
+	var spec []byte
+	if r.Spec != "" {
+		spec = []byte(r.Spec)
+	} else {
+		specFile := r.SpecFile
+		if specFile == "" {
+			panic(ErrSpecNotFound)
+		}
+		spec, err = ioutil.ReadFile(specFile)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	specPath := r.SpecPath
@@ -71,11 +84,6 @@ func (r Redoc) Handler() http.HandlerFunc {
 	docsPath := r.DocsPath
 	if docsPath == "" {
 		docsPath = "/"
-	}
-
-	spec, err := ioutil.ReadFile(specFile)
-	if err != nil {
-		panic(err)
 	}
 
 	return func(w http.ResponseWriter, req *http.Request) {

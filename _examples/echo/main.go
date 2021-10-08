@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/Kotodian/go-redoc"
+	echoredoc "github.com/Kotodian/go-redoc/echo"
 	"github.com/labstack/echo/v4"
-	"github.com/mvrilo/go-redoc"
-	echoredoc "github.com/mvrilo/go-redoc/echo"
 )
 
 func main() {
